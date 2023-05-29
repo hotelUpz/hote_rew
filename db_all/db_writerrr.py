@@ -49,9 +49,9 @@ def db_wrtr(total, n2):
                 except:
                     pass 
                 return print('len_=0')
-            print(f"before___{len(resReviews)}")
-            resReviews = remove_repetitions(resReviews)
-            print(f"arter___{len(resReviews)}") 
+            print(f"len___{len(resReviews)}")
+            # resReviews = remove_repetitions(resReviews)
+            # print(f"arter___{len(resReviews)}") 
   
         except:
             pass  
@@ -201,12 +201,12 @@ def semaforr(conn, cursor, n):
     except Exception as ex:
         print(ex)
 
-def remove_repetitions(data):
-    unique_values = set()
-    result = []
-    for item in data:
-        unil_value = item.get("room_id")
-        if unil_value not in unique_values:
-            result.append(item)
-            unique_values.add(unil_value)
-    return result
+# def remove_repetitions(data):
+#     unique_values = set()
+#     result = []
+#     for item in data:
+#         unil_value = item.get("room_id")
+#         if unil_value not in unique_values:
+#             result.append(item)
+#             unique_values.add(unil_value)
+#     return result
