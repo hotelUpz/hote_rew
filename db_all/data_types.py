@@ -88,8 +88,8 @@ def db_types():
         # query = "DESCRIBE upz_hotels_photos;"
         # query = "DESCRIBE upz_hotels_description;"
         # query = "DESCRIBE upz_hotels_facilityties;"
-        query = "DESCRIBE upz_hotels_review;"
-        # query = "DESCRIBE upz_hotels_rooms;"
+        # query = "DESCRIBE upz_hotels_review;"
+        query = "DESCRIBE upz_hotels_rooms;"
         # query = "DESCRIBE upz_hotels_rooms_blocks;"
         # query = "DESCRIBE upz_hotels_copy;"
        

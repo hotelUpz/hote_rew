@@ -157,17 +157,13 @@ def grendMather_controller(data):
                 except Exception as ex:
                     print(f"headers281____{ex}")
                 # print(headerss)                
-                k = 2 / random.randrange(1, 5)
-                m = 1 / random.randrange(1, 11)
-                g = random.randrange(1, 5)
-                n = round(g + k + m, 2) 
-                time.sleep(n)  
-            
-# 224____Session.request() got an unexpected keyword argument 'max_redirects'
-
-
+                # k = 2 / random.randrange(1, 5)
+                # m = 1 / random.randrange(1, 11)
+                # g = random.randrange(1, 5)
+                # n = round(g + k + m, 2) 
+                # time.sleep(n)  
                 try: 
-                    r = requests.get(refactor_url, headers=headerss, allow_redirects=False, proxies=proxy_item)
+                    r = requests.get(refactor_url, headers=headerss, allow_redirects=False, proxies=proxy_item, timeout=(9.15, 30.15))
                     r.raise_for_status()
                     # print(r.status_code)
                     if r.status_code == 404: 
@@ -364,10 +360,10 @@ def main():
         'n2': 0,
         'interval': 1000,
         'from_item': 52000,
-        'len_items': 200000,
+        'len_items': 100000,
         'counter': 0,
         'flag_end_cycles': False,
-        'cpu_count': 64
+        'cpu_count': 32
     }  
 
     try:

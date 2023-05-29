@@ -4,7 +4,7 @@ def db_wrtr(total, n2):
         import mysql.connector
         from mysql.connector import connect, Error 
         from . import config_real
-        print('hello db_writerr faci')
+        print('hello db_writerr')
 
         config = {
             'user': config_real.user,
@@ -13,22 +13,22 @@ def db_wrtr(total, n2):
             'port': config_real.port,
             'database': config_real.database,      
         }
-        for _ in range(5):
+        for _ in range(3):
             try:
                 conn = mysql.connector.connect(**config)      
-                print("Writerr connection established2 otziv")
+                print("Writerr connection established otziv")
+                break
             except Error as e:
                 print(f"Error connecting to MySQL: {e}")
                 time.sleep(3)
                 continue
             
-            try:
-                cursor = conn.cursor() 
-            except Error as e:
-                print(f"Error connecting to MySQL: {e}")
-                time.sleep(3)
-                continue
-            break
+        try:
+            cursor = conn.cursor() 
+        except Error as e:
+            print(f"Error connecting to MySQL: {e}")
+                # time.sleep(3)
+                   
         try:
             print(len(total))
             resReviews = []          
@@ -49,7 +49,9 @@ def db_wrtr(total, n2):
                 except:
                     pass 
                 return print('len_=0')
-            print(f"len___{len(resReviews)}")
+            print(f"before___{len(resReviews)}")
+            resReviews = remove_repetitions(resReviews)
+            print(f"arter___{len(resReviews)}") 
   
         except:
             pass  
@@ -77,45 +79,82 @@ def db_wrtr(total, n2):
         pass
     return
 
+
 def writerr_table(conn, cursor, resReviews):
-    whiteList = []
-    whiteList_set = set()
-    print(resReviews[0], resReviews[1])
+    rew_white = []
+    rew_white_add = []
+    rew_white_set = set()
 
     try:
-        query7 = "INSERT INTO upz_hotels_review (hotelid, title, cons, pros, dt1, average_score, author_name, room_id, checkin, checkout, languagecode) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        query7 = "INSERT INTO upz_hotels_review (hotelid, title, cons, pros, dt1, average_score, author_name, room_id, checkin, checkout, languagecode) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"         
 
-        batch_size = 150
+        batch_size = 250
         batch_values = []
 
         for item in resReviews:
             try:
                 values = (item["hotelid"], item["title"], item["cons"], item["pros"], item["dt1"], item["average_score"], item["author_name"], item["room_id"], item["checkin"], item["checkout"], item["languagecode"])
                 batch_values.append(values)
-                whiteList_set.add(item["hotelid"])
+                rew_white_set.add(item["hotelid"])
 
-                if len(batch_values) == batch_size:
-                    cursor.executemany(query7, batch_values)
-                    conn.commit()
-                    batch_values = []
+                if len(batch_values) >= batch_size:
+                    try:
+                        cursor.executemany(query7, batch_values)
+                        conn.commit()
+                        batch_values = []
+                    except Exception as ex:
+                        print(f"117___{ex}")                        
+                        rew_white_add = insert_rows_individually_room(conn, cursor, query7, batch_values)
+                        rew_white += rew_white_add
+                        batch_values = []
+                        continue                   
 
             except Exception as ex:
-                print(ex)
+                print(f"122___{ex}")
                 continue
 
         if batch_values:
-            cursor.executemany(query7, batch_values)
-            conn.commit()
-    except:
+            try:
+                cursor.executemany(query7, batch_values)
+                conn.commit()
+            except Exception as ex:
+                print(f"130___{ex}")
+                rew_white_add = insert_rows_individually_room(conn, cursor, query7, batch_values)
+                rew_white += rew_white_add
+    except Exception as ex:
+        print(f"123___{ex}")
         pass
 
     try:
-        whiteList = list(whiteList_set)
+        rew_white += list(rew_white_set)
+    except Exception as ex:
+        print(ex)
+
+    return rew_white
+
+
+def insert_rows_individually_room(conn, cursor, query, data):
+    rew_white_set = set()
+    rew_white = []
+    try:
+        data = eval(data)
     except:
-        pass
-
-    return whiteList
-
+        data = data
+    for hotelid, title, cons, pros, dt1, average_score, author_name, room_id, checkin, checkout, languagecode in data:
+        try:
+            values = (hotelid, title, cons, pros, dt1, average_score, author_name, room_id, checkin, checkout, languagecode)
+            cursor.execute(query, values)            
+            rew_white_set.add(hotelid)
+        except Exception as ex:
+            # print(f"204___: {ex}")
+            continue
+    try:
+        conn.commit()
+    except:
+        rew_white = []
+        return rew_white
+    rew_white = list(rew_white_set)
+    return rew_white
 
 def changing_hotelsCritery(cursor, conn, whiteList):
     try:       
@@ -162,6 +201,12 @@ def semaforr(conn, cursor, n):
     except Exception as ex:
         print(ex)
 
-
-
-# python db_writerrr.py
+def remove_repetitions(data):
+    unique_values = set()
+    result = []
+    for item in data:
+        unil_value = item.get("room_id")
+        if unil_value not in unique_values:
+            result.append(item)
+            unique_values.add(unil_value)
+    return result
