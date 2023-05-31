@@ -84,6 +84,7 @@ def writerr_table(conn, cursor, resReviews):
     rew_white = []
     rew_white_add = []
     rew_white_set = set()
+    rew_white_batch_set = set()
 
     try:
         query7 = "INSERT INTO upz_hotels_review (hotelid, title, cons, pros, dt1, average_score, author_name, room_id, checkin, checkout, languagecode) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"         
@@ -95,17 +96,20 @@ def writerr_table(conn, cursor, resReviews):
             try:
                 values = (item["hotelid"], item["title"], item["cons"], item["pros"], item["dt1"], item["average_score"], item["author_name"], item["room_id"], item["checkin"], item["checkout"], item["languagecode"])
                 batch_values.append(values)
-                rew_white_set.add(item["hotelid"])
+                rew_white_batch_set.add(item["hotelid"])
 
                 if len(batch_values) >= batch_size:
                     try:
                         cursor.executemany(query7, batch_values)
                         conn.commit()
+                        rew_white_set.update(rew_white_batch_set)
+                        rew_white_batch_set = {}
                         batch_values = []
                     except Exception as ex:
                         print(f"117___{ex}")                        
-                        rew_white_add = insert_rows_individually_room(conn, cursor, query7, batch_values)
+                        rew_white_add = insert_rows_individually_rew(conn, cursor, query7, batch_values)
                         rew_white += rew_white_add
+                        rew_white_batch_set = {}
                         batch_values = []
                         continue                   
 
@@ -113,14 +117,16 @@ def writerr_table(conn, cursor, resReviews):
                 print(f"122___{ex}")
                 continue
 
-        if batch_values:
+        if batch_values:     
             try:
                 cursor.executemany(query7, batch_values)
                 conn.commit()
+                rew_white_set.update(rew_white_batch_set)
             except Exception as ex:
                 print(f"130___{ex}")
-                rew_white_add = insert_rows_individually_room(conn, cursor, query7, batch_values)
+                rew_white_add = insert_rows_individually_rew(conn, cursor, query7, batch_values)
                 rew_white += rew_white_add
+                rew_white_batch_set = {}
     except Exception as ex:
         print(f"123___{ex}")
         pass
@@ -133,18 +139,18 @@ def writerr_table(conn, cursor, resReviews):
     return rew_white
 
 
-def insert_rows_individually_room(conn, cursor, query, data):
+def insert_rows_individually_rew(conn, cursor, query, data):
     rew_white_set = set()
     rew_white = []
     try:
         data = eval(data)
     except:
         data = data
-    for hotelid, title, cons, pros, dt1, average_score, author_name, room_id, checkin, checkout, languagecode in data:
+    for item in data:
         try:
-            values = (hotelid, title, cons, pros, dt1, average_score, author_name, room_id, checkin, checkout, languagecode)
+            values = (item)
             cursor.execute(query, values)            
-            rew_white_set.add(hotelid)
+            rew_white_set.add(item[0])
         except Exception as ex:
             # print(f"204___: {ex}")
             continue
