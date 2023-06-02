@@ -103,13 +103,13 @@ def writerr_table(conn, cursor, resReviews):
                         cursor.executemany(query7, batch_values)
                         conn.commit()
                         rew_white_set.update(rew_white_batch_set)
-                        rew_white_batch_set = {}
+                        rew_white_batch_set = set()
                         batch_values = []
                     except Exception as ex:
                         print(f"117___{ex}")                        
                         rew_white_add = insert_rows_individually_rew(conn, cursor, query7, batch_values)
                         rew_white += rew_white_add
-                        rew_white_batch_set = {}
+                        rew_white_batch_set = set()
                         batch_values = []
                         continue                   
 
@@ -126,7 +126,7 @@ def writerr_table(conn, cursor, resReviews):
                 print(f"130___{ex}")
                 rew_white_add = insert_rows_individually_rew(conn, cursor, query7, batch_values)
                 rew_white += rew_white_add
-                rew_white_batch_set = {}
+                rew_white_batch_set = set()
     except Exception as ex:
         print(f"123___{ex}")
         pass
@@ -148,7 +148,7 @@ def insert_rows_individually_rew(conn, cursor, query, data):
         data = data
     for item in data:
         try:
-            values = (item)
+            values = item
             cursor.execute(query, values)            
             rew_white_set.add(item[0])
         except Exception as ex:
